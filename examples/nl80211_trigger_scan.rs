@@ -21,13 +21,13 @@ fn main() -> Result<(), Error> {
         .enable_time()
         .build()
         .unwrap();
-    rt.block_on(dump_scan(index));
+    rt.block_on(dump_scan(index))?;
 
     Ok(())
 }
 
-async fn dump_scan(if_index: u32) {
-    let (connection, handle, _) = wl_nl80211::new_connection().unwrap();
+async fn dump_scan(if_index: u32) -> Result<(), Error> {
+    let (connection, handle, _) = wl_nl80211::new_connection()?;
     tokio::spawn(connection);
 
     let duration = 5000;
@@ -39,18 +39,19 @@ async fn dump_scan(if_index: u32) {
     let mut scan_handle = handle.scan().trigger(attrs).execute().await;
 
     let mut msgs = Vec::new();
-    while let Some(msg) = scan_handle.try_next().await.unwrap() {
+    while let Some(msg) = scan_handle.try_next().await? {
         msgs.push(msg);
     }
     tokio::time::sleep(std::time::Duration::from_millis(duration.into())).await;
 
     let mut dump = handle.scan().dump(if_index).execute().await;
     let mut msgs = Vec::new();
-    while let Some(msg) = dump.try_next().await.unwrap() {
+    while let Some(msg) = dump.try_next().await? {
         msgs.push(msg);
     }
     assert!(!msgs.is_empty());
     for msg in msgs {
         println!("{:?}", msg);
     }
+    Ok(())
 }
