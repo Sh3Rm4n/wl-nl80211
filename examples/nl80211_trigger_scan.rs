@@ -30,8 +30,9 @@ async fn dump_scan(if_index: u32) {
     let (connection, handle, _) = wl_nl80211::new_connection().unwrap();
     tokio::spawn(connection);
 
+    let duration = 5000;
     let attrs = wl_nl80211::Nl80211Scan::new(if_index)
-        .duration(5000)
+        .duration(duration)
         .passive(true)
         .build();
 
@@ -41,7 +42,7 @@ async fn dump_scan(if_index: u32) {
     while let Some(msg) = scan_handle.try_next().await.unwrap() {
         msgs.push(msg);
     }
-    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+    tokio::time::sleep(std::time::Duration::from_millis(duration.into())).await;
 
     let mut dump = handle.scan().dump(if_index).execute().await;
     let mut msgs = Vec::new();
