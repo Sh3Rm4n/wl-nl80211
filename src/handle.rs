@@ -43,7 +43,6 @@ impl Nl80211Handle {
     }
 
     // equivalent to `iw DEVICE survey dump` command
-    #[must_use]
     pub fn survey(&self) -> Nl80211SurveyHandle {
         Nl80211SurveyHandle::new(self.clone())
     }
