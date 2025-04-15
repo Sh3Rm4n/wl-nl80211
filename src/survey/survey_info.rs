@@ -53,6 +53,7 @@ const NL80211_SURVEY_INFO_TIME_TX: u16 = 8;
 // const NL80211_SURVEY_INFO_FREQUENCY_OFFSET: u16 = 12;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum Nl80211SurveyInfo {
     // Center frequency of channel in MHz
     Frequency(u32),
