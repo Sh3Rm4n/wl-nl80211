@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 use futures::TryStream;
-use netlink_packet_core::{NLM_F_ACK, NLM_F_DUMP, NLM_F_ECHO, NLM_F_REQUEST};
+use netlink_packet_core::{NLM_F_ACK, NLM_F_REQUEST};
 use netlink_packet_generic::GenlMessage;
 
 use crate::{
