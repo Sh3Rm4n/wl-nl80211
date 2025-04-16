@@ -339,7 +339,7 @@ const NL80211_ATTR_MAX_CSA_COUNTERS: u16 = 206;
 const NL80211_ATTR_MAC_MASK: u16 = 215;
 const NL80211_ATTR_WIPHY_SELF_MANAGED_REG: u16 = 216;
 const NL80211_ATTR_EXT_FEATURES: u16 = 217;
-// const NL80211_ATTR_SURVEY_RADIO_STATS:u16 = 218;
+const NL80211_ATTR_SURVEY_RADIO_STATS: u16 = 218;
 // const NL80211_ATTR_NETNS_FD:u16 = 219;
 const NL80211_ATTR_SCHED_SCAN_DELAY: u16 = 220;
 // const NL80211_ATTR_REG_INDOOR:u16 = 221;
@@ -520,6 +520,7 @@ pub enum Nl80211Attr {
     /// in milliseconds
     MaxRemainOnChannelDuration(u32),
     OffchannelTxOk,
+    SurveyRadioStats,
     WowlanTrigersSupport(Vec<Nl80211WowlanTrigersSupport>),
     SoftwareIftypes(Vec<Nl80211InterfaceType>),
     Features(Nl80211Features),
@@ -637,6 +638,7 @@ impl Nla for Nl80211Attr {
             | Self::TdlsExternalSetup
             | Self::ControlPortEthertype
             | Self::OffchannelTxOk
+            | Self::SurveyRadioStats
             | Self::WiphySelfManagedReg => 0,
             Self::CipherSuites(s) => 4 * s.len(),
             Self::SupportedIftypes(s) => s.as_slice().buffer_len(),
@@ -707,6 +709,7 @@ impl Nla for Nl80211Attr {
             Self::Ssid(_) => NL80211_ATTR_SSID,
             Self::StationInfo(_) => NL80211_ATTR_STA_INFO,
             Self::SurveyInfo(_) => NL80211_ATTR_SURVEY_INFO,
+            Self::SurveyRadioStats => NL80211_ATTR_SURVEY_RADIO_STATS,
             Self::TransmitQueueStats(_) => NL80211_ATTR_TXQ_STATS,
             Self::TransmitQueueLimit(_) => NL80211_ATTR_TXQ_LIMIT,
             Self::TransmitQueueMemoryLimit(_) => NL80211_ATTR_TXQ_MEMORY_LIMIT,
@@ -839,6 +842,7 @@ impl Nla for Nl80211Attr {
             | Self::TdlsExternalSetup
             | Self::ControlPortEthertype
             | Self::OffchannelTxOk
+            | Self::SurveyRadioStats
             | Self::WiphySelfManagedReg => (),
             Self::WiphyChannelType(d) => write_u32(buffer, (*d).into()),
             Self::ChannelWidth(d) => write_u32(buffer, (*d).into()),
@@ -1079,6 +1083,7 @@ impl<'a, T: AsRef<[u8]> + ?Sized> Parseable<NlaBuffer<&'a T>> for Nl80211Attr {
                 }
                 Self::SurveyInfo(nlas)
             }
+            NL80211_ATTR_SURVEY_RADIO_STATS => Self::SurveyRadioStats,
             NL80211_ATTR_TXQ_STATS => {
                 let err_msg = format!(
                     "Invalid NL80211_ATTR_TXQ_STATS value {:?}",

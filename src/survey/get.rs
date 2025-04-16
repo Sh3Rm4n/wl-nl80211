@@ -11,12 +11,12 @@ use crate::{
 
 pub struct Nl80211SurveyGetRequest {
     handle: Nl80211Handle,
-    if_index: u32,
+    attributes: Vec<Nl80211Attr>,
 }
 
 impl Nl80211SurveyGetRequest {
-    pub(crate) fn new(handle: Nl80211Handle, if_index: u32) -> Self {
-        Self { handle, if_index }
+    pub(crate) fn new(handle: Nl80211Handle, attributes: Vec<Nl80211Attr>) -> Self {
+        Self { handle, attributes }
     }
 
     pub async fn execute(
@@ -25,10 +25,9 @@ impl Nl80211SurveyGetRequest {
     {
         let Self {
             mut handle,
-            if_index,
+            attributes,
         } = self;
 
-        let attributes = vec![Nl80211Attr::IfIndex(if_index)];
         let nl80211_msg = Nl80211Message {
             cmd: Nl80211Command::GetSurvey,
             attributes,

@@ -29,7 +29,11 @@ async fn dump_survey(if_index: u32) -> Result<(), Error> {
     let (connection, handle, _) = wl_nl80211::new_connection()?;
     tokio::spawn(connection);
 
-    let mut survey_handle = handle.survey().dump(if_index).execute().await;
+    let mut survey_handle = handle
+        .survey()
+        .dump(wl_nl80211::Nl80211Survey::new(if_index).radio(true).build())
+        .execute()
+        .await;
 
     let mut msgs = Vec::new();
     while let Some(msg) = survey_handle.try_next().await? {
