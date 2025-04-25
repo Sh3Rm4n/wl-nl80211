@@ -62,8 +62,10 @@ const ELEMENT_ID_SSID: u8 = 0;
 const ELEMENT_ID_SUPPORTED_RATES: u8 = 1;
 const ELEMENT_ID_CHANNEL: u8 = 3;
 const ELEMENT_ID_COUNTRY: u8 = 7;
+const ELEMENT_ID_POWER_CONSTRAINT: u8 = 32;
 const ELEMENT_ID_HT_CAP: u8 = 45;
 const ELEMENT_ID_RSN: u8 = 48;
+const ELEMENT_ID_HT_OPERATION: u8 = 61;
 const ELEMENT_ID_VENDOR: u8 = 221;
 
 /// IEEE 802.11-2020 `9.4.2 Elements`
@@ -77,6 +79,8 @@ pub enum Nl80211Element {
     /// Allow channel number identification for STAs.
     Channel(u8),
     Country(Nl80211ElementCountry),
+    /// Power constraint in dB
+    PowerConstraint(u8),
     HtCapability(Nl80211ElementHtCap),
     Rsn(Nl80211ElementRsn),
     /// Vendor specific data.
@@ -92,6 +96,7 @@ impl Nl80211Element {
             Self::SupportedRatesAndSelectors(_) => ELEMENT_ID_SUPPORTED_RATES,
             Self::Channel(_) => ELEMENT_ID_CHANNEL,
             Self::Country(_) => ELEMENT_ID_COUNTRY,
+            Self::PowerConstraint(_) => ELEMENT_ID_POWER_CONSTRAINT,
             Self::Rsn(_) => ELEMENT_ID_RSN,
             Self::Vendor(_) => ELEMENT_ID_VENDOR,
             Self::HtCapability(_) => ELEMENT_ID_HT_CAP,
@@ -104,7 +109,7 @@ impl Nl80211Element {
         match self {
             Self::Ssid(v) => v.len() as u8,
             Self::SupportedRatesAndSelectors(v) => v.len() as u8,
-            Self::Channel(_) => 1,
+            Self::Channel(_) | Self::PowerConstraint(_) => 1,
             Self::Country(v) => v.buffer_len() as u8,
             Self::Rsn(v) => v.buffer_len() as u8,
             Self::Vendor(v) => v.len() as u8,
@@ -142,6 +147,11 @@ impl<T: AsRef<[u8]> + ?Sized> Parseable<T> for Nl80211Element {
             ELEMENT_ID_COUNTRY => {
                 Self::Country(Nl80211ElementCountry::parse(payload)?)
             }
+            ELEMENT_ID_POWER_CONSTRAINT => {
+                Self::PowerConstraint(parse_u8(payload).context(format!(
+                    "Invalid PowerConstraint(db) element {payload:?}"
+                ))?)
+            }
             ELEMENT_ID_RSN => Self::Rsn(Nl80211ElementRsn::parse(payload)?),
             ELEMENT_ID_VENDOR => Self::Vendor(payload.to_vec()),
             ELEMENT_ID_HT_CAP => {
@@ -172,7 +182,7 @@ impl Emitable for Nl80211Element {
                     v.as_slice().iter().map(|v| u8::from(*v)).collect();
                 payload.copy_from_slice(raw.as_slice());
             }
-            Self::Channel(v) => buffer[0] = *v,
+            Self::Channel(v) | Self::PowerConstraint(v) => buffer[0] = *v,
             Self::Country(v) => v.emit(buffer),
             Self::Rsn(v) => v.emit(buffer),
             Self::Vendor(v) => buffer[..v.len()].copy_from_slice(v.as_slice()),
