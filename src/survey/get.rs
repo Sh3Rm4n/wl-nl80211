@@ -15,7 +15,10 @@ pub struct Nl80211SurveyGetRequest {
 }
 
 impl Nl80211SurveyGetRequest {
-    pub(crate) fn new(handle: Nl80211Handle, attributes: Vec<Nl80211Attr>) -> Self {
+    pub(crate) fn new(
+        handle: Nl80211Handle,
+        attributes: Vec<Nl80211Attr>,
+    ) -> Self {
         Self { handle, attributes }
     }
 

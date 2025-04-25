@@ -19,7 +19,8 @@ impl Nl80211Survey {
 }
 
 impl Nl80211AttrsBuilder<Nl80211Survey> {
-    /// Request overall radio statistics to be returned along with other survey data
+    /// Request overall radio statistics to be returned along with other survey
+    /// data
     pub fn radio(self, value: bool) -> Self {
         if value {
             self.replace(Nl80211Attr::SurveyRadioStats)
